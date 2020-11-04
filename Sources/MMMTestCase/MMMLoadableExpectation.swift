@@ -17,7 +17,7 @@ import MMMLoadable
 /// ```
 /// wait(for: [ MMMLoadableExpectation(contentsAvailableFor: favorites) ], timeout: 1)
 /// ```
-public class MMMLoadableExpectation: XCTestExpectation {
+public class MMMLoadableExpectation: XCTestExpectation, MMMLoadableObserverProtocol {
 
 	public typealias Predicate = (MMMPureLoadableProtocol) -> Bool
 
@@ -37,10 +37,13 @@ public class MMMLoadableExpectation: XCTestExpectation {
 		let description = label.replacingOccurrences(of: "${}", with: "\(type(of: loadable))")
 		super.init(description: description)
 
-		self.loadableObserver = MMMLoadableObserver(loadable: loadable) { [weak self] _ in
-			self?.evaluate()
-		}
+		loadable.addObserver(self)
 		evaluate()
+	}
+
+	deinit {
+		// XCTestCase is using a different thread when deallocating expectations it waits on,
+		// let's avoid unsubscribing for now.
 	}
 
 	// MARK: - Convenience predicates
@@ -73,5 +76,11 @@ public class MMMLoadableExpectation: XCTestExpectation {
 				self.fulfill()
 			}
 		}
+	}
+
+	// MARK: - MMMLoadableObserverProtocol
+
+	public func loadableDidChange(_ loadable: MMMPureLoadableProtocol) {
+		evaluate()
 	}
 }

@@ -6,7 +6,7 @@
 Pod::Spec.new do |s|
 
 	s.name = "MMMTestCase"
-	s.version = "1.0.2"
+	s.version = "1.0.4"
 	s.summary = "Our helpers for FBTestCase and XCTestCase"
 	s.description =  s.summary
 	s.homepage = "https://github.com/mediamonks/#{s.name}"
