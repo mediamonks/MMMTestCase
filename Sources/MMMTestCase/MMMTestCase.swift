@@ -58,4 +58,26 @@ extension MMMTestCase {
 			backgroundColor: backgroundColor
 		)
 	}
+
+	public func verify(viewController: UIViewController, fit: MMMTestCaseSize = .screenWidthTableHeight, identifier: String = "", backgroundColor: UIColor? = nil) {
+
+		if !viewController.isViewLoaded {
+
+			// To ensure viewWillAppear and friends are properly called.
+			viewController.beginAppearanceTransition(true, animated: false)
+			viewController.endAppearanceTransition()
+
+			// Modal view controllers are often meant to be laid out via frame-based way,
+			// while we want to use Auto Layout here.
+			viewController.view.translatesAutoresizingMaskIntoConstraints = false
+		}
+
+		self.__verifyView(
+			viewController.view,
+			fitSizes: [ fit.asValue() ],
+			identifier: identifier,
+			backgroundColor: backgroundColor
+		)
+
+	}
 }
