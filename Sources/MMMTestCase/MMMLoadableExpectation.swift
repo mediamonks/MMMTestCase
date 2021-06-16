@@ -38,6 +38,7 @@ public class MMMLoadableExpectation: XCTestExpectation, MMMLoadableObserverProto
 		super.init(description: description)
 
 		loadable.addObserver(self)
+
 		evaluate()
 	}
 
@@ -66,12 +67,17 @@ public class MMMLoadableExpectation: XCTestExpectation, MMMLoadableObserverProto
 		self.init(loadable, label: "${} syncing") { $0.loadableState == .syncing }
 	}
 
+	/// Fulfilled when the loadable is not syncing. This is convenient when the test is going to evaluate
+	/// the state separately once the loadable is not busy anymore.
+	public convenience init(notSyncing loadable: MMMPureLoadableProtocol) {
+		self.init(loadable, label: "${} is not syncing") { $0.loadableState != .syncing }
+	}
+
 	// MARK: -
 
 	private func evaluate() {
 		if predicate(loadable) {
-			// Will stall in case we call fullfill() before the expectation is initialized
-			// (i.e. when this is called from init).
+			// This would stall in case evaluate() is called from init(), thus async.
 			DispatchQueue.main.async {
 				self.fulfill()
 			}
