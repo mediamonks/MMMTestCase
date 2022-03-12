@@ -527,7 +527,7 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 	// we want to pump "all events ready now unless there are too many that we don't have time left",
 	// and not "all events that might show up during the timeframe we have".
 	NSTimeInterval startTime = [NSDate timeIntervalSinceReferenceDate];
-	while (CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, true) == kCFRunLoopRunHandledSource) {
+	while (CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, true) == kCFRunLoopRunHandledSource) {
 		if ([NSDate timeIntervalSinceReferenceDate] - startTime > 0.5) {
 			NSLog(@"MMMTestCase: unable to pump all immediately pending events, the snapshot might be incorrect");
 			break;
