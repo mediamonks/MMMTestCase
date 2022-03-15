@@ -6,5 +6,14 @@
 import XCTest
 @testable import MMMTestCase
 
-class MMMTestCaseTestCase: XCTestCase {
+class MMMTestCaseTestCase: MMMTestCase {
+	
+	override func setUp() {
+		super.setUp()
+	}
+	
+	func testBasics() {
+		
+	}
+	
 }

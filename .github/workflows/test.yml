@@ -1,0 +1,36 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_ios:
+    name: Test iOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare
+        run: gem install xcpretty
+      - name: Test
+        run: |
+          device=`xcrun simctl list devices available | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}'`
+          xcodebuild test -destination "name=$device" -scheme 'MMMTestCase' | xcpretty
+
+  build_tvos:
+    name: Test tvOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare
+        run: gem install xcpretty
+      - name: Test
+        run: |
+          device=`xcrun simctl list devices available | grep -oE 'Apple TV.*?[^\(]+' | head -1 | awk '{$1=$1;print}'`
+          xcodebuild test -destination "name=$device" -scheme 'MMMTestCase' | xcpretty

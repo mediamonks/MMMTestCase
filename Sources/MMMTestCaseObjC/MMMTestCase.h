@@ -3,7 +3,11 @@
 // Copyright (C) 2015-2020 MediaMonks. All rights reserved.
 //
 
+#if SWIFT_PACKAGE
+#import "FBSnapshotTestCase.h"
+#else
 #import <FBSnapshotTestCase/FBSnapshotTestCase.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
