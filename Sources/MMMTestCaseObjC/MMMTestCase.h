@@ -4,7 +4,7 @@
 //
 
 #if SWIFT_PACKAGE
-#import "FBSnapshotTestCase.h"
+@import FBSnapshotTestCase;
 #else
 #import <FBSnapshotTestCase/FBSnapshotTestCase.h>
 #endif

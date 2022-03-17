@@ -23,7 +23,7 @@ pod 'MMMTestCase'
 SPM:
 
 ```swift
-.package(url: "https://github.com/mediamonks/MMMTestCase", .upToNextMajor(from: "1.4.0"))
+.package(url: "https://github.com/mediamonks/MMMTestCase", .upToNextMajor(from: "1.4.1"))
 ```
 
 ## Usage
