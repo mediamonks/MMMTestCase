@@ -4,10 +4,13 @@
 //
 
 import Foundation
-import MMMTestCaseObjC
 import UIKit
 
+#if SWIFT_PACKAGE
+import MMMTestCaseObjC
+
 @_exported import MMMTestCaseObjC
+#endif
 
 /// Possible sizes of a test container view used with verify(view:*) methods of MMMTestCase.
 public enum MMMTestCaseSize {
