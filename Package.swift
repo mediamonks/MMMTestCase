@@ -10,12 +10,15 @@ let package = Package(
     products: [
         .library(
             name: "MMMTestCase",
-            targets: ["MMMTestCase"]
+            type: .dynamic,
+            targets: [
+				"MMMTestCase"
+			]
 		)
     ],
     dependencies: [
 		.package(url: "https://github.com/mediamonks/MMMLoadable", .upToNextMajor(from: "1.6.4")),
-		.package(url: "https://github.com/mediamonks/ios-snapshot-test-case", .upToNextMajor(from: "2.2.0"))
+		.package(url: "https://github.com/mediamonks/ios-snapshot-test-case", .upToNextMajor(from: "2.2.1"))
     ],
     targets: [
         .target(
@@ -23,7 +26,8 @@ let package = Package(
             dependencies: [
 				.product(name: "FBSnapshotTestCase", package: "ios-snapshot-test-case")
             ],
-            path: "Sources/MMMTestCaseObjC"
+            path: "Sources/MMMTestCaseObjC",
+            publicHeadersPath: "include"
 		),
         .target(
             name: "MMMTestCase",

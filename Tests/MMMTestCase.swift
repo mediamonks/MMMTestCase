@@ -4,7 +4,7 @@
 //
 
 import XCTest
-@testable import MMMTestCase
+import MMMTestCase
 
 class MMMTestCaseTestCase: MMMTestCase {
 	
