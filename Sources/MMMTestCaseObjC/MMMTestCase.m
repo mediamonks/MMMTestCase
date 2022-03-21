@@ -657,10 +657,13 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 			NSInteger valueIndex = indexes[count - 1 - i];
 
 			[identifiers addObject:[parameters[i] identifierForValueWithIndex:valueIndex]];
-			[values
-				setObject:[parameters[i] valueForIndex:valueIndex]
-				forKey:parameters[i].name
-			];
+			id value = [parameters[i] valueForIndex:valueIndex];
+			if (value != [NSNull null]) {
+				[values setObject:value forKey:parameters[i].name];
+			} else {
+				// Swift would use `NSNull` for nil values in the parameters dictionary, but would fail to interpret the corresponding
+				// `NSNull` correctly when converting back into an optional.
+			}
 		}
 
 		// And feed them to the block.
