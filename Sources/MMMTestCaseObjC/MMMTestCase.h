@@ -139,6 +139,12 @@ typedef void (^RandomOrderBlock)();
 
 - (NSOrderedSet *)referenceFolderSuffixes;
 
+/**
+ * Waits for completion of all work items submitted to be main queue so far.
+ * It uses `waitForExpectations`, so it's pumping the run loop, etc.
+ */
+- (void)flushMainQueue;
+
 @end
 
 /**

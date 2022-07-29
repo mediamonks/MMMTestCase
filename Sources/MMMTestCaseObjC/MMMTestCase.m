@@ -713,6 +713,14 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 	}
 }
 
+- (void)flushMainQueue {
+	XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"MMMTestCase#flushMainQueue"];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[expectation fulfill];
+	});
+	[self waitForExpectations:@[expectation] timeout:1];
+}
+
 @end
 
 //
