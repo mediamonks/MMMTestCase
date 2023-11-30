@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import MMMCommonCore
 import UIKit
 
 #if SWIFT_PACKAGE
@@ -86,5 +87,14 @@ extension MMMTestCase {
 			backgroundColor: backgroundColor
 		)
 
+	}
+
+	/// Helps generating parameter dictionaries suitable for `varyParameters` from enums supporting `CaseIterable`.
+	public func allTestCases<T: CaseIterable>(_ type: T.Type) -> [String: T] {
+		.init(uniqueKeysWithValues:
+			T.allCases
+				.map { (String(MMMTypeName($0).split(separator: ".").last!), $0) }
+				.sorted { a, b in a.0 < b.0 }
+		)
 	}
 }
