@@ -5,6 +5,7 @@
 
 import Foundation
 import MMMCommonCore
+import SwiftUI
 import UIKit
 
 #if SWIFT_PACKAGE
@@ -45,7 +46,7 @@ public enum MMMTestCaseSize {
 				return NSValue(cgSize: CGSize(width: width, height: height))
 		}
 	}
-};
+}
 
 extension MMMTestCase {
 
@@ -86,7 +87,73 @@ extension MMMTestCase {
 			identifier: identifier,
 			backgroundColor: backgroundColor
 		)
+	}
 
+	private class WrapperController: UIViewController {
+
+		private let viewController: UIViewController
+
+		public init(_ viewController: UIViewController) {
+			self.viewController = viewController
+			super.init(nibName: nil, bundle: nil)
+			addChild(viewController)
+			viewController.didMove(toParent: self)
+		}
+		
+		public required init?(coder: NSCoder) { fatalError() }
+
+		public var fitSize: CGSize = .init(width: 320, height: 480)
+
+		public private(set) lazy var container = MMMTestCaseContainer()
+
+		override func viewDidLoad() {
+			super.viewDidLoad()
+			view.addSubview(container)
+		}
+
+		override func viewWillLayoutSubviews() {
+			super.viewWillLayoutSubviews()
+			container.setChildView(viewController.view, size: fitSize)
+			let bounds = view.bounds.inset(by: view.safeAreaInsets)
+			container.frame = .init(origin: bounds.origin, size: container.sizeThatFits(.zero))
+		}
+	}
+
+	private func sizeForFit(_ fit: MMMTestCaseSize) -> CGSize {
+		switch fit {
+		case .natural: return self.fitSize(forPresetFit: .natural)
+		case .screenWidth: return self.fitSize(forPresetFit: .screenWidth)
+		case .screenWidthTableHeight: return self.fitSize(forPresetFit: .screenWidthTableHeight)
+		case let .size(width, height): return .init(width: width, height: height)
+		}
+	}
+
+	public func verify<T: SwiftUI.View>(view: T, fit: MMMTestCaseSize = .screenWidthTableHeight, identifier: String = "", backgroundColor: UIColor? = nil) {
+
+		let window = UIWindow()
+		let viewController = UIHostingController(rootView: view)
+		let wrapper = WrapperController(viewController)
+
+		window.rootViewController = wrapper
+		window.windowLevel = .normal - 1 // It could be fun to watch snapshots, but let's keep older behavior.
+		window.isHidden = false
+
+		let fitSize = sizeForFit(fit)
+		wrapper.fitSize = viewController.sizeThatFits(in: fitSize)
+		window.setNeedsLayout()
+		// We need the layout to happen naturally now.
+		pumpRunLoopABit()
+
+		self.verifyView(
+			wrapper.container,
+			identifier: [
+				identifier,
+				fitSize.width > 0 ? String(format: "w%.f", fitSize.width) : nil,
+				fitSize.height > 0 ? String(format: "h%.f", fitSize.height) : nil
+			].compactMap { $0 }.joined(separator: "_"),
+			suffixes: self.referenceFolderSuffixes(),
+			tolerance: 0.05
+		)
 	}
 
 	/// Helps generating parameter dictionaries suitable for `varyParameters` from enums supporting `CaseIterable`.

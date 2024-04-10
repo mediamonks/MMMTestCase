@@ -118,19 +118,6 @@
 
 @end
 
-/**
- */
-@interface MMMTestCaseContainer : UIView
-
-@property (nonatomic, readwrite) CGRect testViewAlignmentRect;
-
-- (id)init NS_DESIGNATED_INITIALIZER;
-
-- (id)initWithCoder:(NSCoder *)aDecoder NS_UNAVAILABLE;
-- (id)initWithFrame:(CGRect)frame NS_UNAVAILABLE;
-
-@end
-
 @implementation MMMTestCaseContainer {
 	UIView *_autoLayoutContainer;
 	UIView *_childView;
@@ -266,7 +253,7 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 	CGFloat halfLineWidth = .5;
 
 	//
-	// Safety area backtround.
+	// Safety area background.
 	//
 	[[self safetyAreaColor] setFill];
 	CGContextFillRect(c, b);
@@ -278,7 +265,7 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 	CGContextFillRect(c, [self safetyBounds]);
 
 	//
-	// Guidlines corresponding to the alignment rectangle.
+	// Guidelines corresponding to the alignment rectangle.
 	//
 	{
 		CGRect r = [_childView alignmentRectForFrame:[self safetyBounds]];

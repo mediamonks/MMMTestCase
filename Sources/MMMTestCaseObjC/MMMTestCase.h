@@ -145,6 +145,9 @@ typedef void (^RandomOrderBlock)();
  */
 - (void)flushMainQueue;
 
+/// Pumps all events ready right now unless there are too many that we don't have time left.
+- (void)pumpRunLoopABit;
+
 @end
 
 /**
@@ -177,6 +180,21 @@ NS_SWIFT_NAME(MMMTestCase.TableViewCellWrapper)
 - (id)init NS_UNAVAILABLE;
 - (id)initWithFrame:(CGRect)frame NS_UNAVAILABLE;
 - (id)initWithCoder:(NSCoder *)coder NS_UNAVAILABLE;
+
+@end
+
+/**
+ */
+@interface MMMTestCaseContainer : UIView
+
+@property (nonatomic, readwrite) CGRect testViewAlignmentRect;
+
+- (id)init NS_DESIGNATED_INITIALIZER;
+
+- (id)initWithCoder:(NSCoder *)aDecoder NS_UNAVAILABLE;
+- (id)initWithFrame:(CGRect)frame NS_UNAVAILABLE;
+
+- (void)setChildView:(UIView *)childView size:(CGSize)size;
 
 @end
 

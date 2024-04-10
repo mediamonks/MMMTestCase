@@ -1,12 +1,12 @@
 #
 # MMMTestCase. Part of MMMTemple.
-# Copyright (C) 2015-2022 MediaMonks. All rights reserved.
+# Copyright (C) 2015-2024 MediaMonks. All rights reserved.
 #
 
 Pod::Spec.new do |s|
 
 	s.name = "MMMTestCase"
-	s.version = "1.9.0"
+	s.version = "1.10.0"
 	s.summary = "Our helpers for FBTestCase and XCTestCase"
 	s.description = s.summary
 	s.homepage = "https://github.com/mediamonks/#{s.name}"
@@ -14,7 +14,8 @@ Pod::Spec.new do |s|
 	s.authors = "MediaMonks"
 	s.source = { :git => "https://github.com/mediamonks/#{s.name}.git", :tag => s.version.to_s }
 
-	s.platform = :ios, '11.0'
+	s.platform = :ios, '15.0'
+	s.swift_versions = '5.0'
 
 	s.framework = 'XCTest'
 	s.dependency 'FBSnapshotTestCase/Core'
