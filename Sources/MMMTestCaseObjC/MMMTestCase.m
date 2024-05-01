@@ -532,8 +532,12 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 	MMMTestCaseContainer *outerContainer = [[MMMTestCaseContainer alloc] init];
 	outerContainer.backgroundColor = backgroundColor ?: [UIColor whiteColor];
 
-	// To ensure any small updates scheduled on the current run loop (or dispatch queue attached to it) are procesed before we begin measuring things.
+	// To ensure any small updates scheduled on the current run loop (or dispatch queue attached to it) are processed before we begin measuring things.
 	[self pumpRunLoopABit];
+
+	// Let's remember the superview this view was a part of, to restore this afterwards.
+	UIView *originalSuperview = view.superview;
+	NSInteger originalIndex = originalSuperview ? [view.superview.subviews indexOfObjectIdenticalTo:view] : NSNotFound;
 
 	CGSize size;
 
@@ -546,6 +550,13 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 
 	} else {
 
+		// Let's have a window to make sure sizing works properly with layouts involving many
+		// multi-line labels depending on each other.
+		UIWindow *window = [[UIWindow alloc] init];
+		[window setHidden:NO];
+		[window setWindowLevel:-1];
+		[window addSubview:view];
+
 		[view updateConstraintsIfNeeded];
 
 		size = [view
@@ -557,10 +568,6 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 			verticalFittingPriority:(fitSize.height <= 0) ? UILayoutPriorityFittingSizeLevel : UILayoutPriorityRequired
 		];
 	}
-
-	// Let's remember the superview this view was a part of, to restore this afterwards.
-	UIView *originalSuperview = view.superview;
-	NSInteger originalIndex = originalSuperview ? [view.superview.subviews indexOfObjectIdenticalTo:view] : NSNotFound;
 
 	[outerContainer setChildView:view size:size];
 	CGSize containerSize = [outerContainer sizeThatFits:CGSizeZero];
