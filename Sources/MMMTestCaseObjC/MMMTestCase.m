@@ -557,16 +557,30 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 		[window setWindowLevel:-1];
 		[window addSubview:view];
 
-		[view updateConstraintsIfNeeded];
-
-		size = [view
-			systemLayoutSizeFittingSize:CGSizeMake(
-				fitSize.width <= 0 ? 0 : fitSize.width,
-				fitSize.height <= 0 ? 0 : fitSize.height
-			)
-			withHorizontalFittingPriority:(fitSize.width <= 0) ? UILayoutPriorityFittingSizeLevel : UILayoutPriorityRequired
-			verticalFittingPriority:(fitSize.height <= 0) ? UILayoutPriorityFittingSizeLevel : UILayoutPriorityRequired
+		// A replacement for `systemLayoutSizeFittingSize` that should be able to handle cases where multi-pass layout is required.
+		NSLayoutConstraint *widthConstraint = [NSLayoutConstraint
+			constraintWithItem:view attribute:NSLayoutAttributeWidth
+			relatedBy:NSLayoutRelationEqual
+			toItem:nil attribute:NSLayoutAttributeNotAnAttribute
+			multiplier:1 constant:fitSize.width <= 0 ? 0 : fitSize.width
 		];
+		widthConstraint.priority = (fitSize.width <= 0) ? UILayoutPriorityFittingSizeLevel : UILayoutPriorityRequired;
+		NSLayoutConstraint *heightConstraint = [NSLayoutConstraint
+			constraintWithItem:view attribute:NSLayoutAttributeWidth
+			relatedBy:NSLayoutRelationEqual
+			toItem:nil attribute:NSLayoutAttributeNotAnAttribute
+			multiplier:1 constant:fitSize.height <= 0 ? 0 : fitSize.height
+		];
+		heightConstraint.priority = (fitSize.height <= 0) ? UILayoutPriorityFittingSizeLevel : UILayoutPriorityRequired;
+
+		[NSLayoutConstraint activateConstraints:@[widthConstraint, heightConstraint]];
+
+		// This should call those pending layoutIfNeeded, multiple times if needed.
+		[self pumpRunLoopABit];
+
+		[NSLayoutConstraint deactivateConstraints:@[widthConstraint, heightConstraint]];
+
+		size = view.bounds.size;
 	}
 
 	[outerContainer setChildView:view size:size];
