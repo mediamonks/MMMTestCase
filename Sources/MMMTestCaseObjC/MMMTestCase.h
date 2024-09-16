@@ -35,7 +35,7 @@ typedef NS_ENUM(NSInteger, MMMTestCaseFit) {
 @interface MMMTestCase : FBSnapshotTestCase
 
 /** 
- * If this is YES, then `recordMode` property will be overriden to YES for all the descendants of MMMTestCase.
+ * If this is YES, then `recordMode` property will be overridden to YES for all the descendants of MMMTestCase.
  *
  * This is handy when you need to re-record all the snapshot-based unit tests without tweaking `recordMode` property 
  * of each case.
@@ -115,7 +115,7 @@ typedef NS_ENUM(NSInteger, MMMTestCaseFit) {
 - (void)varyParameters:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)parameters
 	block:(void (^)(NSString *combinationIdentifier, NSDictionary<NSString *, id> *values))block;
 
-typedef void (^RandomOrderBlock)();
+typedef void (^RandomOrderBlock)(void);
 
 /**
  * The order in which properties of an object are accessed should not matter, however sometimes the code is not ready

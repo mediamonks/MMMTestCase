@@ -566,7 +566,7 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 		];
 		widthConstraint.priority = (fitSize.width <= 0) ? UILayoutPriorityFittingSizeLevel : UILayoutPriorityRequired;
 		NSLayoutConstraint *heightConstraint = [NSLayoutConstraint
-			constraintWithItem:view attribute:NSLayoutAttributeWidth
+			constraintWithItem:view attribute:NSLayoutAttributeHeight
 			relatedBy:NSLayoutRelationEqual
 			toItem:nil attribute:NSLayoutAttributeNotAnAttribute
 			multiplier:1 constant:fitSize.height <= 0 ? 0 : fitSize.height
@@ -578,9 +578,9 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 		// This should call those pending layoutIfNeeded, multiple times if needed.
 		[self pumpRunLoopABit];
 
-		[NSLayoutConstraint deactivateConstraints:@[widthConstraint, heightConstraint]];
-
 		size = view.bounds.size;
+
+		[NSLayoutConstraint deactivateConstraints:@[widthConstraint, heightConstraint]];
 	}
 
 	[outerContainer setChildView:view size:size];
