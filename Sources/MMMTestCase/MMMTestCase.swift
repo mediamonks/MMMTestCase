@@ -89,36 +89,6 @@ extension MMMTestCase {
 		)
 	}
 
-	private class WrapperController: UIViewController {
-
-		private let viewController: UIViewController
-
-		public init(_ viewController: UIViewController) {
-			self.viewController = viewController
-			super.init(nibName: nil, bundle: nil)
-			addChild(viewController)
-			viewController.didMove(toParent: self)
-		}
-		
-		public required init?(coder: NSCoder) { fatalError() }
-
-		public var fitSize: CGSize = .init(width: 320, height: 480)
-
-		public private(set) lazy var container = MMMTestCaseContainer()
-
-		override func viewDidLoad() {
-			super.viewDidLoad()
-			view.addSubview(container)
-		}
-
-		override func viewWillLayoutSubviews() {
-			super.viewWillLayoutSubviews()
-			container.setChildView(viewController.view, size: fitSize)
-			let bounds = view.bounds.inset(by: view.safeAreaInsets)
-			container.frame = .init(origin: bounds.origin, size: container.sizeThatFits(.zero))
-		}
-	}
-
 	private func sizeForFit(_ fit: MMMTestCaseSize) -> CGSize {
 		switch fit {
 		case .natural: return self.fitSize(forPresetFit: .natural)
@@ -128,32 +98,78 @@ extension MMMTestCase {
 		}
 	}
 
-	public func verify<T: SwiftUI.View>(view: T, fit: MMMTestCaseSize = .screenWidthTableHeight, identifier: String = "", backgroundColor: UIColor? = nil) {
+	@available(iOS 16, *)
+	public func verify<T: SwiftUI.View>(
+		view: T,
+		fit: MMMTestCaseSize = .screenWidthTableHeight,
+		identifier: String = "",
+		backgroundColor: UIColor? = nil
+	) {
 
-		let window = UIWindow()
-		let viewController = UIHostingController(rootView: view)
-		let wrapper = WrapperController(viewController)
-
-		window.rootViewController = wrapper
-		window.windowLevel = .normal - 1 // It could be fun to watch snapshots, but let's keep older behavior.
-		window.isHidden = false
+		let controller = UIHostingController(rootView: view)
+		controller.sizingOptions = .intrinsicContentSize
+		controller.safeAreaRegions = []
+		controller.view.translatesAutoresizingMaskIntoConstraints = false
 
 		let fitSize = sizeForFit(fit)
-		wrapper.fitSize = viewController.sizeThatFits(in: fitSize)
-		window.setNeedsLayout()
+
+		switch fit {
+		case .natural:
+			controller.view.setContentCompressionResistancePriority(.required, for: .horizontal)
+			controller.view.setContentCompressionResistancePriority(.required, for: .vertical)
+			controller.view.widthAnchor.constraint(
+				lessThanOrEqualToConstant: sizeForFit(.screenWidth).width
+			).isActive = true
+		case .screenWidth:
+			controller.view.widthAnchor.constraint(equalToConstant: fitSize.width).isActive = true
+			controller.view.setContentCompressionResistancePriority(.required, for: .vertical)
+		case .screenWidthTableHeight:
+			controller.view.widthAnchor.constraint(equalToConstant: fitSize.width).isActive = true
+			controller.view.heightAnchor.constraint(equalToConstant: fitSize.height).isActive = true
+		case .size(let width, let height):
+			controller.view.widthAnchor.constraint(equalToConstant: width).isActive = true
+			controller.view.heightAnchor.constraint(equalToConstant: height).isActive = true
+		}
+
+		controller.view.setNeedsLayout()
+
+		controller.view.drawHierarchy(in: .init(
+			origin: .zero,
+			size: controller.view.systemLayoutSizeFitting(.zero)
+		), afterScreenUpdates: true)
+
 		// We need the layout to happen naturally now.
 		pumpRunLoopABit()
 
-		self.verifyView(
-			wrapper.container,
+		verify(
+			view: controller.view,
+			fit: fit,
 			identifier: [
 				identifier,
 				fitSize.width > 0 ? String(format: "w%.f", fitSize.width) : nil,
 				fitSize.height > 0 ? String(format: "h%.f", fitSize.height) : nil
 			].compactMap { $0 }.joined(separator: "_"),
-			suffixes: self.referenceFolderSuffixes(),
-			tolerance: 0.05
+			backgroundColor: backgroundColor
 		)
+	}
+
+	@available(iOS 16, *)
+	public func verify(previews: SwiftUI._PreviewProvider.Type, fit: MMMTestCaseSize) {
+		for preview in previews._allPreviews {
+			let view = preview.content
+
+			if let identifier = identifierFromPreview(preview) {
+				self.verify(view: view, fit: fit, identifier: identifier)
+			} else {
+				NSLog("No displayName provided, skipped preview snapshot")
+			}
+		}
+	}
+
+	private func identifierFromPreview(_ preview: _Preview) -> String? {
+		preview.displayName.map {
+			$0.split(separator: " ").map(\.capitalized).joined(separator: "")
+		}
 	}
 
 	/// Helps generating parameter dictionaries suitable for `varyParameters` from enums supporting `CaseIterable`.
