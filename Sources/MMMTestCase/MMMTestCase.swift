@@ -36,14 +36,14 @@ public enum MMMTestCaseSize {
 
 	fileprivate func asValue() -> NSValue {
 		switch self {
-			case .natural:
-				return NSNumber(value: MMMTestCaseFit.natural.rawValue)
-			case .screenWidth:
-				return NSNumber(value: MMMTestCaseFit.screenWidth.rawValue)
-			case .screenWidthTableHeight:
-				return NSNumber(value: MMMTestCaseFit.screenWidthTableHeight.rawValue)
-			case let .size(width, height):
-				return NSValue(cgSize: CGSize(width: width, height: height))
+		case .natural:
+			return NSNumber(value: MMMTestCaseFit.natural.rawValue)
+		case .screenWidth:
+			return NSNumber(value: MMMTestCaseFit.screenWidth.rawValue)
+		case .screenWidthTableHeight:
+			return NSNumber(value: MMMTestCaseFit.screenWidthTableHeight.rawValue)
+		case let .size(width, height):
+			return NSValue(cgSize: CGSize(width: width, height: height))
 		}
 	}
 }
@@ -99,12 +99,10 @@ extension MMMTestCase {
 	}
 
 	@available(iOS 16, *)
-	public func verify<T: SwiftUI.View>(
-		view: T,
-		fit: MMMTestCaseSize = .screenWidthTableHeight,
-		identifier: String = "",
-		backgroundColor: UIColor? = nil
-	) {
+	public func testableView<T: SwiftUI.View>(
+		from view: T,
+		fit: MMMTestCaseSize = .screenWidthTableHeight
+	) -> UIView {
 
 		let controller = UIHostingController(rootView: view)
 		controller.sizingOptions = .intrinsicContentSize
@@ -141,8 +139,21 @@ extension MMMTestCase {
 		// We need the layout to happen naturally now.
 		pumpRunLoopABit()
 
+		return controller.view
+	}
+
+	@available(iOS 16, *)
+	public func verify<T: SwiftUI.View>(
+		view: T,
+		fit: MMMTestCaseSize = .screenWidthTableHeight,
+		identifier: String = "",
+		backgroundColor: UIColor? = nil
+	) {
+
+		let fitSize = sizeForFit(fit)
+
 		verify(
-			view: controller.view,
+			view: testableView(from: view, fit: fit),
 			fit: fit,
 			identifier: [
 				identifier,
@@ -175,9 +186,9 @@ extension MMMTestCase {
 	/// Helps generating parameter dictionaries suitable for `varyParameters` from enums supporting `CaseIterable`.
 	public func allTestCases<T: CaseIterable>(_ type: T.Type) -> [String: T] {
 		.init(uniqueKeysWithValues:
-			T.allCases
-				.map { (String(MMMTypeName($0).split(separator: ".").last!), $0) }
-				.sorted { a, b in a.0 < b.0 }
+				T.allCases
+			.map { (String(MMMTypeName($0).split(separator: ".").last!), $0) }
+			.sorted { a, b in a.0 < b.0 }
 		)
 	}
 }
