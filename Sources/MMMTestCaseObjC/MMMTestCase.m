@@ -478,6 +478,8 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 		return;
 	}
 
+	BOOL recordFallback = [[NSProcessInfo processInfo].environment[@"MMM_FALLBACK_TO_RECORD"] boolValue];
+
 	if (self.recordMode) {
 
 		NSError *error = nil;
@@ -500,6 +502,14 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 			}
 
 			BOOL comparisonSuccess = [self compareSnapshotOfView:view referenceImagesDirectory:dir identifier:identifier tolerance:tolerance error:&error];
+
+			if (!comparisonSuccess && recordFallback) {
+				self.recordMode = YES;
+				[self verifyView:view identifier:identifier suffixes:suffixes tolerance:tolerance];
+				self.recordMode = NO;
+				return;
+			}
+
 			XCTAssertTrue(comparisonSuccess, @"Snapshot comparison failed: %@", error);
 			return;
 		}
