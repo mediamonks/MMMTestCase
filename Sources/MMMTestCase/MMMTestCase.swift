@@ -106,7 +106,9 @@ extension MMMTestCase {
 
 		let controller = UIHostingController(rootView: view)
 		controller.sizingOptions = .intrinsicContentSize
-		controller.safeAreaRegions = []
+		if #available(iOS 16.4, tvOS 16.4, *) {
+			controller.safeAreaRegions = []
+		}
 		controller.view.translatesAutoresizingMaskIntoConstraints = false
 
 		let fitSize = sizeForFit(fit)

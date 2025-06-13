@@ -585,7 +585,9 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 
 		[NSLayoutConstraint activateConstraints:@[widthConstraint, heightConstraint]];
 
-		// This should call those pending layoutIfNeeded, multiple times if needed.
+		[window layoutIfNeeded];
+
+		// To make sure any layouts requiring multiple passes go well.
 		[self pumpRunLoopABit];
 
 		size = view.bounds.size;
