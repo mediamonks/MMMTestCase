@@ -369,6 +369,11 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 
 	[super setUp];
 
+	// It's using `CALayer.renderInContext` by default which causes issues with `maskedCorners` and `cornerCurve`:
+	// the former is simply ignored while the latter is rendered incorrectly when it is `.continuous`
+	// (which is default in layers of `UIView`) and the `cornerRadius` is large enough.
+	self.usesDrawViewHierarchyInRect = YES;
+
 	if ([self.class overrideRecordMode]) {
 		self.recordMode = YES;
 	}
