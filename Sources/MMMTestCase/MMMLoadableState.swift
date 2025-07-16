@@ -1,5 +1,5 @@
 //
-// Starbucks App.
+// MMMTestCase. Part of MMMTemple.
 // Copyright (c) 2022 MediaMonks. All rights reserved.
 // 
 
