@@ -403,10 +403,32 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 }
 
 - (void)verifyView:(UIView *)view fitSizes:(NSArray *)fitSizes identifier:(NSString *)identifier {
-	[self verifyView:view fitSizes:fitSizes identifier:identifier backgroundColor:nil];
+	[self
+		verifyView:view
+		fitSizes:fitSizes
+		identifier:identifier
+		backgroundColor:nil
+		file:[NSString stringWithCString:__FILE__ encoding:NSUTF8StringEncoding]
+		line:__LINE__
+	];
 }
 
-- (void)verifyView:(UIView *)view fitSizes:(NSArray *)fitSizes identifier:(NSString *)identifier backgroundColor:(UIColor *)backgroundColor {
+- (void)verifyView:(UIView *)view
+	fitSizes:(NSArray<NSValue *> *)fitSizes
+	identifier:(NSString *)identifier
+	backgroundColor:(nullable UIColor *)backgroundColor
+{
+	[self
+		verifyView:view
+		fitSizes:fitSizes
+		identifier:identifier
+		backgroundColor:backgroundColor
+		file:[NSString stringWithCString:__FILE__ encoding:NSUTF8StringEncoding]
+		line:__LINE__
+	];
+}
+
+- (void)verifyView:(UIView *)view fitSizes:(NSArray *)fitSizes identifier:(NSString *)identifier backgroundColor:(UIColor *)backgroundColor file:(NSString *)file line:(NSUInteger)line {
 
 	for (id fit in fitSizes) {
 
@@ -426,7 +448,7 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 			fitSize = CGSizeZero;
 		}
 
-		[self verifyView:view fitSize:fitSize identifier:identifier backgroundColor:backgroundColor];
+		[self verifyView:view fitSize:fitSize identifier:identifier backgroundColor:backgroundColor file:file line:line];
 	}
 }
 
@@ -472,10 +494,29 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 	return _referenceFolderSuffixes;
 }
 
-/** 
+- (void)failureWithMessage:(NSString *)message error:(NSError *)error file:(NSString *)file line:(NSUInteger)line {
+	[self recordIssue:[[XCTIssue alloc]
+		initWithType:XCTIssueTypeAssertionFailure
+		compactDescription:message
+		detailedDescription:message
+		sourceCodeContext:[[XCTSourceCodeContext alloc]
+			initWithLocation:[[XCTSourceCodeLocation alloc] initWithFilePath:file lineNumber:line]
+		]
+		associatedError:error
+		attachments:@[]
+	]];
+}
+
+/**
  * A modified version of FBSnapshotVerifyViewWithOptions. 
  */
-- (void)verifyView:(UIView *)view identifier:(NSString *)identifier suffixes:(NSOrderedSet *)suffixes tolerance:(CGFloat)tolerance {
+- (void)verifyView:(UIView *)view
+	identifier:(NSString *)identifier
+	suffixes:(NSOrderedSet *)suffixes
+	tolerance:(CGFloat)tolerance
+	file:(NSString *)file
+	line:(NSUInteger)line
+{
 
 	NSString *referenceImagesDirectory = [NSProcessInfo processInfo].environment[@"FB_REFERENCE_IMAGE_DIR"];
 	if (!referenceImagesDirectory) {
@@ -491,9 +532,9 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 		NSString *dir = [referenceImagesDirectory stringByAppendingString:[suffixes firstObject]];
 		BOOL referenceImageSaved = [self compareSnapshotOfView:view referenceImagesDirectory:dir identifier:identifier tolerance:tolerance error:&error];
 		if (!referenceImageSaved) {
-			XCTFail(@"Could not save a reference image: %@", error);
+			[self failureWithMessage:@"Could not save a reference image" error:error file:file line:line];
 		} else {
-			XCTFail(@"Test ran in record mode. Reference image is now saved. Disable record mode to perform an actual snapshot comparison!");
+			[self failureWithMessage:@"Test ran in record mode. Reference image is now saved. Disable record mode to perform an actual snapshot comparison!" error:nil file:file line:line];
 		}
 
 	} else {
@@ -510,16 +551,16 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 
 			if (!comparisonSuccess && recordFallback) {
 				self.recordMode = YES;
-				[self verifyView:view identifier:identifier suffixes:suffixes tolerance:tolerance];
+				[self verifyView:view identifier:identifier suffixes:suffixes tolerance:tolerance file:file line:line];
 				self.recordMode = NO;
 				return;
 			}
-
-			XCTAssertTrue(comparisonSuccess, @"Snapshot comparison failed: %@", error);
+			if (!comparisonSuccess) {
+				[self failureWithMessage:@"Snapshot comparison failed" error:error file:file line:line];
+			}
 			return;
 		}
-
-		XCTFail(@"Could not find any snapshots");
+		[self failureWithMessage:@"Could not find any snapshots" error:nil file:file line:line];
 	}
 }
 
@@ -538,6 +579,17 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 }
 
 - (void)verifyView:(UIView *)view fitSize:(CGSize)fitSize identifier:(NSString *)identifier backgroundColor:(UIColor *)backgroundColor {
+	[self
+		verifyView:view
+		fitSize:fitSize
+		identifier:identifier
+		backgroundColor:backgroundColor
+		file:[NSString stringWithCString:__FILE__ encoding:NSUTF8StringEncoding]
+		line:__LINE__
+	];
+}
+
+- (void)verifyView:(UIView *)view fitSize:(CGSize)fitSize identifier:(NSString *)identifier backgroundColor:(UIColor *)backgroundColor file:(NSString *)file line:(NSUInteger)line {
 
 	if ([view isKindOfClass:[UITableViewCell class]]) {
 		XCTFail(@"`UITableViewCell` should be wrapped into %@ for correct snapshots", [MMMTestCaseTableViewCellWrapper class]);
@@ -624,7 +676,7 @@ static CGFloat _MMMPhaseForDashedPattern(CGFloat lineLength, CGFloat dashLength,
 	NSString *combinedIdentifier = [identifierParts componentsJoinedByString:@"_"];
 
 	// We allow 5% tolerance by default, so differences between iPhone 5 and 5s don't break the tests.
-	[self verifyView:outerContainer identifier:combinedIdentifier suffixes:[self referenceFolderSuffixes] tolerance:0.05];
+	[self verifyView:outerContainer identifier:combinedIdentifier suffixes:[self referenceFolderSuffixes] tolerance:0.05 file:file line:line];
 
 	// Let's restore the superview.
 	if (originalSuperview) {

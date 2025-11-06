@@ -59,6 +59,8 @@ typedef NS_ENUM(NSInteger, MMMTestCaseFit) {
  */
 - (void)verifyView:(UIView *)view fitSize:(CGSize)fitSize identifier:(NSString *)identifier backgroundColor:(nullable UIColor *)backgroundColor NS_REFINED_FOR_SWIFT;
 
+- (void)verifyView:(UIView *)view fitSize:(CGSize)fitSize identifier:(NSString *)identifier backgroundColor:(nullable UIColor *)backgroundColor file:(NSString *)file line:(NSUInteger)line NS_REFINED_FOR_SWIFT;
+
 /** A shortcut for the above method using white background. */
 - (void)verifyView:(UIView *)view fitSize:(CGSize)fitSize identifier:(NSString *)identifier NS_SWIFT_UNAVAILABLE("");
 
@@ -74,7 +76,14 @@ typedef NS_ENUM(NSInteger, MMMTestCaseFit) {
 - (void)verifyView:(UIView *)view
 	fitSizes:(NSArray<NSValue *> *)fitSizes
 	identifier:(NSString *)identifier
-	backgroundColor:(nullable UIColor *)backgroundColor NS_REFINED_FOR_SWIFT;
+	backgroundColor:(nullable UIColor *)backgroundColor
+	file:(NSString *)file
+	line:(NSUInteger)line NS_REFINED_FOR_SWIFT;
+
+- (void)verifyView:(UIView *)view
+	fitSizes:(NSArray<NSValue *> *)fitSizes
+	identifier:(NSString *)identifier
+	backgroundColor:(nullable UIColor *)backgroundColor NS_SWIFT_UNAVAILABLE("");
 
 - (void)verifyView:(UIView *)view
 	fitSizes:(NSArray<NSValue *> *)fitSizes
@@ -85,7 +94,7 @@ typedef NS_ENUM(NSInteger, MMMTestCaseFit) {
 	suffixes:(NSOrderedSet *)suffixes
 	tolerance:(CGFloat)tolerance DEPRECATED_MSG_ATTRIBUTE("Does not seem to be used");
 
-/** 
+/**
  * Runs the given block with all the possible combinations of the given parameters.
  * For example, we want to check all the combinations of title and location strings in one of the cells, so we call:
  * \code

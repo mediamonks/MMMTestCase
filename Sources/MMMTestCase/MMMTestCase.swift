@@ -50,25 +50,43 @@ public enum MMMTestCaseSize {
 
 extension MMMTestCase {
 
-	public func verify(view: UIView, fits: [MMMTestCaseSize], identifier: String = "", backgroundColor: UIColor? = nil) {
+	public func verify(
+		view: UIView,
+		fits: [MMMTestCaseSize],
+		identifier: String = "",
+		backgroundColor: UIColor? = nil,
+		file: String = #file,
+		line: UInt = #line
+	) {
 		self.__verifyView(
 			view,
 			fitSizes: fits.map { $0.asValue() },
 			identifier: identifier,
-			backgroundColor: backgroundColor
+			backgroundColor: backgroundColor,
+			file: file,
+			line: line
 		)
 	}
 
-	public func verify(view: UIView, fit: MMMTestCaseSize, identifier: String = "", backgroundColor: UIColor? = nil) {
+	public func verify(
+		view: UIView,
+		fit: MMMTestCaseSize,
+		identifier: String = "",
+		backgroundColor: UIColor? = nil,
+		file: String = #file,
+		line: UInt = #line
+	) {
 		self.__verifyView(
 			view,
 			fitSizes: [ fit.asValue() ],
 			identifier: identifier,
-			backgroundColor: backgroundColor
+			backgroundColor: backgroundColor,
+			file: file,
+			line: line
 		)
 	}
 
-	public func verify(viewController: UIViewController, fit: MMMTestCaseSize = .screenWidthTableHeight, identifier: String = "", backgroundColor: UIColor? = nil) {
+	public func verify(viewController: UIViewController, fit: MMMTestCaseSize = .screenWidthTableHeight, identifier: String = "", backgroundColor: UIColor? = nil, file: String = #file, line: UInt = #line) {
 
 		if !viewController.isViewLoaded {
 
@@ -85,7 +103,9 @@ extension MMMTestCase {
 			viewController.view,
 			fitSizes: [ fit.asValue() ],
 			identifier: identifier,
-			backgroundColor: backgroundColor
+			backgroundColor: backgroundColor,
+			file: file,
+			line: line
 		)
 	}
 
@@ -149,30 +169,38 @@ extension MMMTestCase {
 		view: T,
 		fit: MMMTestCaseSize = .screenWidthTableHeight,
 		identifier: String = "",
-		backgroundColor: UIColor? = nil
+		backgroundColor: UIColor? = nil,
+		file: String = #file,
+		line: UInt = #line
 	) {
 
 		let fitSize = sizeForFit(fit)
 
+		let view = testableView(from: view, fit: fit)
+		view.isOpaque = false
+		view.backgroundColor = nil
+
 		verify(
-			view: testableView(from: view, fit: fit),
+			view: view,
 			fit: fit,
 			identifier: [
 				identifier,
 				fitSize.width > 0 ? String(format: "w%.f", fitSize.width) : nil,
 				fitSize.height > 0 ? String(format: "h%.f", fitSize.height) : nil
 			].compactMap { $0 }.joined(separator: "_"),
-			backgroundColor: backgroundColor
+			backgroundColor: backgroundColor,
+			file: file,
+			line: line
 		)
 	}
 
 	@available(iOS 16, *)
-	public func verify(previews: SwiftUI._PreviewProvider.Type, fit: MMMTestCaseSize) {
+	public func verify(previews: SwiftUI._PreviewProvider.Type, fit: MMMTestCaseSize, file: String = #file, line: UInt = #line) {
 		for preview in previews._allPreviews {
 			let view = preview.content
 
 			if let identifier = identifierFromPreview(preview) {
-				self.verify(view: view, fit: fit, identifier: identifier)
+				self.verify(view: view, fit: fit, identifier: identifier, file: file, line: line)
 			} else {
 				NSLog("No displayName provided, skipped preview snapshot")
 			}
