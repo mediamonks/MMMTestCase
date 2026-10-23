@@ -124,7 +124,9 @@ extension MMMTestCase {
 		fit: MMMTestCaseSize = .screenWidthTableHeight
 	) -> UIView {
 
-		let controller = UIHostingController(rootView: view)
+		// Snapshots should show final states, not something in the middle of an animation depending on timing.
+		// (Setting `animation` to `nil` is not enough, `.animation(_:value:)` modifiers would override it.)
+		let controller = UIHostingController(rootView: view.transaction { $0.disablesAnimations = true })
 		controller.sizingOptions = .intrinsicContentSize
 		if #available(iOS 16.4, tvOS 16.4, *) {
 			controller.safeAreaRegions = []
